@@ -1,37 +1,51 @@
 ﻿using static System.Console;
 using System;
+using System.IO;
 
 namespace DelegateExample
 {
      class Program
     {
-        public delegate void Calculate(string msg);
-        public static void SendMsg(string msg)
+        //打印信息出来的委托
+        public delegate void PrinfMsg(string msg);
+        /// <summary>
+        /// 根据传入的委托变量进行调用对应绑定的方法
+        /// </summary>
+        /// <param name="delegateMsg">委托变量参数</param>
+        /// <param name="msg">信息参数</param>
+        public static void Printf(PrinfMsg delegateMsg,string msg)
         {
-            WriteLine($"->Send message({DateTime.Now:yyyy年MM月dd日hh:mm:ss}):{msg}");
+            delegateMsg(msg);
         }
-        public static void ReceiveMsg(string msg)
+        /// <summary>
+        /// 打印信息到屏幕中去
+        /// </summary>
+        /// <param name="msg">信息参数</param>
+        public static void PrintfScreen(string msg)
         {
-            WriteLine($"->Receive message({DateTime.Now:yyyy年MM月dd日hh:mm:ss}):{msg}");
+            WriteLine($"{msg}");
+        }
+        /// <summary>
+        /// 打印信息到文件中去
+        /// </summary>
+        /// <param name="msg">信息参数</param>
+        public static void PrintfFile(string msg)
+        {
+            FileStream fs = new FileStream(".\\example.txt", FileMode.Append, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine($"{DateTime.Now:yyyy年MM月dd日hh:mm:ss}->{msg}");
+            sw.Flush();
+            sw.Close();
+            fs.Close();
         }
         static void Main(string[] args)
-        { 
-            //原函数直接调用
-            SendMsg("你好啊！");
-            ReceiveMsg("你都好啊！");
-
-            //委托类型调用方法
-            Calculate msg1 = new Calculate(SendMsg);
-            Calculate msg2 = new Calculate(ReceiveMsg);
-            msg1("你食佐饭未啊？");
-            msg2("食佐啦！");
-
-            //委托的多播（组播）
-            Calculate msg3;
-            msg3 = msg1;
-            msg3 += msg2;           
-            msg3("多谢嗮！");
-            
+        {
+            //实例化委托，引用对应函数方法
+            PrinfMsg pm1 = new PrinfMsg(PrintfScreen);
+            PrinfMsg pm2 = new PrinfMsg(PrintfFile);
+            //以委托变量的形式传参进入printf函数中执行
+            Printf(pm1, "你好啊！");
+            Printf(pm2, "Life is a fucking  movie!");
             ReadKey();
         }
     }
