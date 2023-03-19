@@ -6,46 +6,72 @@ namespace DelegateExample
 {
      class Program
     {
-        //打印信息出来的委托
-        public delegate void PrinfMsg(string msg);
         /// <summary>
-        /// 根据传入的委托变量进行调用对应绑定的方法
+        /// 用于问候方法的委托类型
         /// </summary>
-        /// <param name="delegateMsg">委托变量参数</param>
-        /// <param name="msg">信息参数</param>
-        public static void Printf(PrinfMsg delegateMsg,string msg)
-        {
-            delegateMsg(msg);
+        /// <param name="name"></param>
+        public delegate void GreetMethods(string name);
+        /// <summary>
+        /// 用于选择中英文方法的枚举
+        /// </summary>
+        public enum Language {
+            Chinese,English
         }
         /// <summary>
-        /// 打印信息到屏幕中去
+        /// 使用枚举标志进行选择执行对应的方法
         /// </summary>
-        /// <param name="msg">信息参数</param>
-        public static void PrintfScreen(string msg)
+        /// <param name="name"></param>
+        /// <param name="language"></param>
+        public static void GreetPeople1(string name,Language language)
         {
-            WriteLine($"{msg}");
+            switch (language) {
+                case Language.Chinese:
+                    ChineseGreet(name);
+                    break;
+                case Language.English:
+                    EnglishGreet(name);
+                    break;
+            }       
         }
         /// <summary>
-        /// 打印信息到文件中去
+        /// 动态执行委托对应的方法
         /// </summary>
-        /// <param name="msg">信息参数</param>
-        public static void PrintfFile(string msg)
+        /// <param name="name"></param>
+        /// <param name="greetdelegate"></param>
+        public static void GreetPeople2(string name,GreetMethods greetdelegate)
         {
-            FileStream fs = new FileStream(".\\example.txt", FileMode.Append, FileAccess.Write);
-            StreamWriter sw = new StreamWriter(fs);
-            sw.WriteLine($"{DateTime.Now:yyyy年MM月dd日hh:mm:ss}->{msg}");
-            sw.Flush();
-            sw.Close();
-            fs.Close();
+            greetdelegate(name);
+        }
+        /// <summary>
+        /// 中文格式调用的方法
+        /// </summary>
+        /// <param name="name"></param>
+        public static void ChineseGreet(string name)
+        {
+            WriteLine($"早晨，{name}！");
+        }
+        /// <summary>
+        /// 英文格式调用的方法
+        /// </summary>
+        /// <param name="name"></param>
+        public static void EnglishGreet(string name)
+        {
+            WriteLine($"Good morning,{name}!");
         }
         static void Main(string[] args)
         {
-            //实例化委托，引用对应函数方法
-            PrinfMsg pm1 = new PrinfMsg(PrintfScreen);
-            PrinfMsg pm2 = new PrinfMsg(PrintfFile);
-            //以委托变量的形式传参进入printf函数中执行
-            Printf(pm1, "你好啊！");
-            Printf(pm2, "Life is a fucking  movie!");
+            //传统根据选择枚举标志来执行对应的方法流程
+            GreetPeople1("靓仔", Language.Chinese);
+            GreetPeople1("handsome boy", Language.English);
+            //方法绑定到委托实例化变量
+            GreetMethods gm1 = new GreetMethods(ChineseGreet);
+            GreetMethods gm2 = new GreetMethods(EnglishGreet);
+            GreetPeople2("得闲饮茶",ChineseGreet);
+            GreetPeople2("Bye", gm2);
+            //方法直接绑定到委托变量中
+            GreetMethods gm3 = ChineseGreet;
+            gm3 += EnglishGreet;
+            gm3("吃佐早餐未");
             ReadKey();
         }
     }
