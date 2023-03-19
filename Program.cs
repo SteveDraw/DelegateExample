@@ -70,7 +70,9 @@ namespace DelegateExample
             GreetPeople2("Bye", gm2);
             //方法直接绑定到委托变量中
             GreetMethods gm3 = ChineseGreet;
+            //委托的多播
             gm3 += EnglishGreet;
+            gm3 -= EnglishGreet;
             gm3("吃佐早餐未");
             ReadKey();
         }
