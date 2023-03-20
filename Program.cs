@@ -4,44 +4,28 @@ using System.IO;
 
 namespace DelegateExample
 {
-     class Program
-    {
-        /// <summary>
-        /// 用于问候方法的委托类型
-        /// </summary>
-        /// <param name="name"></param>
-        public delegate void GreetMethods(string name);
-        /// <summary>
-        /// 用于选择中英文方法的枚举
-        /// </summary>
-        public enum Language {
-            Chinese,English
-        }
-        /// <summary>
-        /// 使用枚举标志进行选择执行对应的方法
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="language"></param>
-        public static void GreetPeople1(string name,Language language)
-        {
-            switch (language) {
-                case Language.Chinese:
-                    ChineseGreet(name);
-                    break;
-                case Language.English:
-                    EnglishGreet(name);
-                    break;
-            }       
-        }
+    /// <summary>
+    /// 用于问候方法的委托类型
+    /// </summary>
+    /// <param name="name"></param>
+    public delegate void GreetMethods(string name);
+    public class GreetProject{
+
+        public static GreetMethods gm;  //将委托变量变成字段封装，调用方法前，需绑定
         /// <summary>
         /// 动态执行委托对应的方法
         /// </summary>
         /// <param name="name"></param>
         /// <param name="greetdelegate"></param>
-        public static void GreetPeople2(string name,GreetMethods greetdelegate)
+        public static void GreetPeople2(string name)
         {
-            greetdelegate(name);
+            if (gm != null) {
+                gm(name);  //判断有没绑定先
+            }
         }
+    }
+     class Program
+    {
         /// <summary>
         /// 中文格式调用的方法
         /// </summary>
@@ -60,20 +44,12 @@ namespace DelegateExample
         }
         static void Main(string[] args)
         {
-            //传统根据选择枚举标志来执行对应的方法流程
-            GreetPeople1("靓仔", Language.Chinese);
-            GreetPeople1("handsome boy", Language.English);
-            //方法绑定到委托实例化变量
-            GreetMethods gm1 = new GreetMethods(ChineseGreet);
-            GreetMethods gm2 = new GreetMethods(EnglishGreet);
-            GreetPeople2("得闲饮茶",ChineseGreet);
-            GreetPeople2("Bye", gm2);
             //方法直接绑定到委托变量中
-            GreetMethods gm3 = ChineseGreet;
+            GreetProject.gm = ChineseGreet;
             //委托的多播
-            gm3 += EnglishGreet;
-            gm3 -= EnglishGreet;
-            gm3("吃佐早餐未");
+            GreetProject.gm += EnglishGreet;
+            GreetProject.gm -= EnglishGreet;
+            GreetProject.GreetPeople2("吃佐早餐未");
             ReadKey();
         }
     }
