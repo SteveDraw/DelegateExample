@@ -4,52 +4,47 @@ using System.IO;
 
 namespace DelegateExample
 {
+    public  delegate void NumberResult(int count);
     /// <summary>
-    /// 用于问候方法的委托类型
+    /// 事件发布者
     /// </summary>
-    /// <param name="name"></param>
-    public delegate void GreetMethods(string name);
-    public class GreetProject{
-
-        public static GreetMethods gm;  //将委托变量变成字段封装，调用方法前，需绑定
-        /// <summary>
-        /// 动态执行委托对应的方法
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="greetdelegate"></param>
-        public static void GreetPeople2(string name)
+    public class Publisher
+    {
+        private int count;
+        public  NumberResult nr;//事件
+        public void NumberChanged()
         {
-            if (gm != null) {
-                gm(name);  //判断有没绑定先
+            if (nr != null)
+            {
+                count++;
+                nr(count);
             }
+        }
+    }
+    /// <summary>
+    /// 事件订阅者
+    /// </summary>
+    public class Sublisher
+    {
+        /// <summary>
+        /// 事件触发的行为
+        /// </summary>
+        /// <param name="count"></param>
+        public void ShowNumber(int count)
+        {
+            WriteLine($"当前数字计数为{count}！");
         }
     }
      class Program
     {
-        /// <summary>
-        /// 中文格式调用的方法
-        /// </summary>
-        /// <param name="name"></param>
-        public static void ChineseGreet(string name)
-        {
-            WriteLine($"早晨，{name}！");
-        }
-        /// <summary>
-        /// 英文格式调用的方法
-        /// </summary>
-        /// <param name="name"></param>
-        public static void EnglishGreet(string name)
-        {
-            WriteLine($"Good morning,{name}!");
-        }
+        
         static void Main(string[] args)
         {
-            //方法直接绑定到委托变量中
-            GreetProject.gm = ChineseGreet;
-            //委托的多播
-            GreetProject.gm += EnglishGreet;
-            GreetProject.gm -= EnglishGreet;
-            GreetProject.GreetPeople2("吃佐早餐未");
+            Publisher pb = new Publisher();
+            Sublisher sb = new Sublisher();
+            pb.nr += sb.ShowNumber;  //注册事件
+            //pb.NumberChanged();//触发事件
+            pb.nr(100);   //若有event封装则不适宜
             ReadKey();
         }
     }
